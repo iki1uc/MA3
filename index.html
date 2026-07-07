@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BOERSE – 9hoch9 Style</title>
+    <style>
+        body {
+            background: #111;
+            color: #0f0;
+            font-family: monospace;
+            padding: 20px;
+        }
+        h2 { color: #0f0; margin-bottom: 20px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .cell {
+            background: #222;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            min-height: 120px;
+        }
+        .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>BOERSE – 9hoch9 Ghost Scan</h2>
+
+<div id="grid" class="grid"></div>
+
+<script>
+// BOERSE-Kette (du kannst beliebig erweitern)
+const chain = [
+    { name: "BOERSE ROOT", url: "https://iki1uc.github.io/BOERSE/" },
+    { name: "MARKT", url: "https://raw.githubusercontent.com/iki1uc/BOERSE/main/MARKT/marketData.js" },
+    { name: "SCAN81", url: "https://raw.githubusercontent.com/iki1uc/BOERSE/main/MARKT/SCAN81/scanEVO.js" },
+    { name: "ID-GATE", url: "https://iki1uc.github.io/BOERSE/ID.html" },
+    { name: "TOOLS", url: "https://iki1uc.github.io/BOERSE-TOOLS/" },
+    { name: "Scan-Ghost", url: "https://iki1uc.github.io/Scan-Ghost/" },
+    { name: "ki3KIme", url: "https://iki1uc.github.io/ki3KIme/" },
+    { name: "ECO-MARKT3-EXP168", url: "https://iki1uc.github.io/ECO-MARKT3-EXP168/" },
+    { name: "Respo-Rotation", url: "https://iki1uc.github.io/Respo-Rotation/" }
+];
+
+// Grid erzeugen
+const grid = document.getElementById("grid");
+chain.forEach((item, i) => {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.id = "slot" + i;
+    cell.innerHTML = `<div class="title">${item.name}</div>waiting…`;
+    grid.appendChild(cell);
+});
+
+// Ghost-Scan + POS + Kette
+async function scanRotation() {
+    for (let i = 0; i < chain.length; i++) {
+        const slot = document.getElementById("slot" + i);
+        const item = chain[i];
+
+        try {
+            const res = await fetch(item.url);
+            slot.innerHTML =
+                `<div class="title">${item.name}</div>` +
+                `POS: ${i+1}<br>` +
+                `URL: ${item.url}<br>` +
+                (res.ok ? "ONLINE ✓" : "ERROR ✗") +
+                ` (${res.status})`;
+        } catch (err) {
+            slot.innerHTML =
+                `<div class="title">${item.name}</div>` +
+                `POS: ${i+1}<br>` +
+                `URL: ${item.url}<br>` +
+                `EXCEPTION ✗<br>${err.message}`;
+        }
+    }
+}
+
+// Start + Auto-Update
+scanRotation();
+setInterval(scanRotation, 3000);
+</script>
+
+</body>
+</html>
