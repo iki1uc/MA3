@@ -1,0 +1,16 @@
+{
+  "matrix": [
+    "MA3 → BOERSE ROOT",
+    "BOERSE ROOT → MARKT",
+    "MARKT → SCAN81",
+    "SCAN81 → ID-GATE",
+    "ID-GATE → TOOLS",
+    "TOOLS → Scan-Ghost",
+    "Scan-Ghost → ki3KIme",
+    "ki3KIme → ECO-MARKT3-EXP168",
+    "ECO-MARKT3-EXP168 → Respo-Rotation",
+    "Respo-Rotation → ART.link",
+    "ART.link → TriAxiom",
+    "TriAxiom → MA3"
+  ]
+}
