@@ -1,0 +1,10 @@
+new.form(x) =
+  cube(
+    pyramid(
+      cube(
+        cylinder(
+          cube(x)
+        )
+      )
+    )
+  )
