@@ -1,5 +1,6 @@
-calc.index:
-  T1: cylinder(cube(x))
-  T2: cube(cylinder(x))
-  T3: pyramid(cube(x))
-  T4: cube(pyramid(x))
+export const calcIndex = {
+  T1: x => Math.PI * (x**3)**2,
+  T2: x => (Math.PI * x**2)**3,
+  T3: x => (x**3)**3 / 3,
+  T4: x => ((x**3)/3)**3
+};
