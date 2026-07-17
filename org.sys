@@ -1,0 +1,8 @@
+import { xEngine } from "./engine.sys.js";
+import { verify } from "./verify.sys.js";
+
+export function prefetch(x) {
+  const engine = xEngine(x);
+  const check = verify(engine);
+  return { engine, check };
+}
