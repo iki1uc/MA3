@@ -14,11 +14,83 @@
 
 <h2>MA³ – 9hoch9 Mirror</h2>
 
-<div id="ma3-mirror" class="grid"></div>
+<div class="grid">
+    <div id="engine-output" class="cell"></div>
+    <div id="verify-output" class="cell"></div>
+    <div id="prefetch-output" class="cell"></div>
+    <div id="form-output" class="cell"></div>
+    <div id="calc-output" class="cell"></div>
+    <div id="chain-output" class="cell"></div>
+    <div id="build-output" class="cell"></div>
+    <div id="matrix-output" class="cell"></div>
+    <div id="orbit-output" class="cell"></div>
+    <div id="axiom-output" class="cell"></div>
+    <div id="bridge-output" class="cell"></div>
+    <div id="pipeline-output" class="cell"></div>
+</div>
 
 <script type="module">
-import { mirrorMA3 } from "./mirror.js";
-mirrorMA3();
+import { xEngine } from "./engine.sys.js";
+import { verify } from "./VERIFY.sys.js";
+import { prefetch } from "./org.sys";
+import { formIndex } from "./form.index.js";
+import { calcIndex } from "./calc.index.js";
+import { chainIndex } from "./chain.index.js";
+import { buildIndex } from "./build.index.js";
+import { respoMatrixEngine } from "./respo-matrix-engine.js";
+import orbit from "./orbit-matrix.json" assert { type: "json" };
+import { triAxiomConnector } from "./triAxiom-connector.js";
+import { ulrmBridge } from "./ulrm-bridge.js";
+import { pipeline3 } from "./pipeline3.js";
+import { pipeline6 } from "./pipeline6.js";
+
+// ENGINE
+document.getElementById("engine-output").innerText =
+    "ENGINE: " + xEngine(3);
+
+// VERIFY
+document.getElementById("verify-output").innerText =
+    "VERIFY: " + JSON.stringify(verify(xEngine(3)));
+
+// PREFETCH
+document.getElementById("prefetch-output").innerText =
+    "PREFETCH: " + JSON.stringify(prefetch(3));
+
+// FORM
+document.getElementById("form-output").innerText =
+    "FORM cube(3): " + formIndex.cube(3);
+
+// CALC
+document.getElementById("calc-output").innerText =
+    "T1(3): " + calcIndex.T1(3);
+
+// CHAIN
+document.getElementById("chain-output").innerText =
+    "CHAIN: " + chainIndex.chain.join(" → ");
+
+// BUILD
+document.getElementById("build-output").innerText =
+    "F81(3): " + buildIndex.F81(3);
+
+// MATRIX
+document.getElementById("matrix-output").innerText =
+    "MATRIX: " + JSON.stringify(respoMatrixEngine());
+
+// ORBIT
+document.getElementById("orbit-output").innerText =
+    "ORBIT: " + JSON.stringify(orbit);
+
+// AXIOM
+document.getElementById("axiom-output").innerText =
+    "AXIOM: " + JSON.stringify(triAxiomConnector());
+
+// BRIDGE
+document.getElementById("bridge-output").innerText =
+    "BRIDGE: " + JSON.stringify(ulrmBridge());
+
+// PIPELINE
+document.getElementById("pipeline-output").innerText =
+    "PIPELINE: " + pipeline3() + " | " + pipeline6();
 </script>
 
 </body>
