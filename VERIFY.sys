@@ -1,0 +1,6 @@
+export function verify(value) {
+  if (!Number.isFinite(value)) return { ok:false, error:"NaN" };
+  if (value === Infinity) return { ok:false, error:"∞" };
+  if (value < 0) return { ok:false, error:"NEG" };
+  return { ok:true };
+}
