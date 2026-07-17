@@ -1,0 +1,24 @@
+cube(x)     = x³
+cylinder(x) = πx²
+pyramid(x)  = x³ / 3
+cube → cylinder → cube → pyramid → cube
+T1(x) = cylinder(cube(x))
+T2(x) = cube(cylinder(x))
+T3(x) = pyramid(cube(x))
+T4(x) = cube(pyramid(x))
+F81(x) = Σ ( Tn(x) )  für n = 1 bis 81
+new.form(x) = cube( pyramid( cube( cylinder( cube(x) ) ) ) )
+x.engine = new.form(x)
+form.sys:
+  ROOT: x
+  TRANSFORM:
+    cube(x)
+    cylinder(x)
+    pyramid(x)
+  CHAIN:
+    cube → cylinder → cube → pyramid → cube
+  BUILD:
+    9×9 = 81
+    F81(x) = neue Bildung
+  ENGINE:
+    x.engine = new.form(x)
