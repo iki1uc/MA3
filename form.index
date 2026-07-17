@@ -1,0 +1,6 @@
+form.index:
+  id: x
+  base:
+    cube: x³
+    cylinder: πx²
+    pyramid: x³/3
