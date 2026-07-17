@@ -1,0 +1,14 @@
+import { formIndex } from "./form.index.js";
+import { calcIndex } from "./calc.index.js";
+
+export const xEngine = x => {
+  return formIndex.cube(
+    formIndex.pyramid(
+      formIndex.cube(
+        formIndex.cylinder(
+          formIndex.cube(x)
+        )
+      )
+    )
+  );
+};
