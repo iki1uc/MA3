@@ -1,0 +1,4 @@
+build.index:
+  matrix: 9x9
+  iterations: 81
+  F81(x): Σ Tn(x)
