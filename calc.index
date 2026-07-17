@@ -1,0 +1,5 @@
+calc.index:
+  T1: cylinder(cube(x))
+  T2: cube(cylinder(x))
+  T3: pyramid(cube(x))
+  T4: cube(pyramid(x))
