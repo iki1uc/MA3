@@ -1,4 +1,9 @@
-build.index:
-  matrix: 9x9
-  iterations: 81
-  F81(x): Σ Tn(x)
+export const buildIndex = {
+  matrix: 9,
+  iterations: 81,
+  F81: x => {
+    let sum = 0;
+    for (let i = 0; i < 81; i++) sum += x;
+    return sum;
+  }
+};
