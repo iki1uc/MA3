@@ -1,6 +1,5 @@
-form.index:
-  id: x
-  base:
-    cube: x³
-    cylinder: πx²
-    pyramid: x³/3
+export const formIndex = {
+  cube: x => x**3,
+  cylinder: x => Math.PI * x**2,
+  pyramid: x => x**3 / 3
+};
