@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>⚜️ iki1uc · ATEMZUG · FL76 · Kaiser-Fenster</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{
+    height:100%;overflow:hidden;
+    background:#050308;color:#f0e0c0;
+    font-family:'Consolas','Courier New',monospace;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  canvas{
+    display:block;width:100vw;height:100vh;
+    touch-action:none;cursor:crosshair;
+  }
+  #hdr{
+    position:fixed;top:12px;left:16px;
+    font-size:11px;letter-spacing:5px;
+    color:#f4d060;z-index:10;
+    text-transform:uppercase;pointer-events:none;
+    text-shadow:0 0 18px rgba(244,208,96,0.75);
+    font-family:'Yu Mincho','Hiragino Mincho ProN',serif;
+  }
+  #hdr .sub{
+    display:block;font-size:8px;letter-spacing:3px;
+    color:#8a7a5a;margin-top:3px;
+    font-family:'Consolas',monospace;
+  }
+  #formula{
+    position:fixed;top:12px;right:56px;
+    background:rgba(8,5,15,0.82);
+    border:1px solid rgba(212,168,60,0.35);
+    border-left:3px solid #f4d060;
+    padding:10px 14px;
+    font-size:10px;line-height:1.85;
+    z-index:10;backdrop-filter:blur(6px);
+    pointer-events:none;min-width:170px;
+  }
+  #formula .t{
+    color:#f4d060;font-size:8px;letter-spacing:4px;
+    text-transform:uppercase;
+    border-bottom:1px solid rgba(212,168,60,0.2);
+    padding-bottom:4px;margin-bottom:5px;
+  }
+  #formula .r{display:flex;justify-content:space-between;gap:14px;}
+  #formula .k{color:#8a7a5a;}
+  #formula .v{color:#f4e0a0;font-weight:bold;}
+  #formula .v.hb{color:#8cf0b0;}
+  #ces{
+    position:fixed;bottom:12px;left:50%;
+    transform:translateX(-50%);
+    display:flex;gap:16px;align-items:center;
+    background:rgba(8,5,15,0.82);
+    border:1px solid rgba(212,168,60,0.25);
+    padding:9px 20px;font-size:11px;
+    letter-spacing:3px;z-index:10;
+    backdrop-filter:blur(6px);pointer-events:none;
+    font-family:'Yu Mincho','Hiragino Mincho ProN',serif;
+  }
+  #ces .item{text-transform:uppercase;color:#5a4a5a;
+    transition:color .5s, text-shadow .5s;font-size:10px;}
+  #ces .item.on{color:#f4d060;
+    text-shadow:0 0 16px rgba(244,208,96,0.95);}
+  #ces .ar{color:#3a2a4a;font-size:11px;}
+  #st{
+    position:fixed;bottom:12px;left:16px;
+    font-size:9px;letter-spacing:1.5px;
+    color:#8a7a5a;z-index:10;
+    pointer-events:none;line-height:1.7;
+  }
+  #st .g{color:#f4d060;font-weight:bold;}
+  #st .hb{color:#8cf0b0;font-weight:bold;}
+  #st .fn{color:#6cf;font-weight:bold;}
+
+  #mute{
+    position:fixed;top:12px;right:16px;
+    width:32px;height:32px;z-index:11;
+    background:rgba(8,5,15,0.82);
+    border:1px solid rgba(212,168,60,0.35);
+    color:#f4d060;font-size:14px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;backdrop-filter:blur(6px);
+    transition:box-shadow .3s;
+  }
+  #mute:focus-visible{outline:2px solid #f4d060;outline-offset:2px;}
+  #mute.on{box-shadow:0 0 12px rgba(244,208,96,0.6);}
+  #hint{
+    position:fixed;top:52px;right:16px;
+    font-size:8px;letter-spacing:1px;color:#5a4a5a;
+    max-width:130px;text-align:right;z-index:10;
+    pointer-events:none;transition:opacity .8s;
+  }
+
+  @media(max-width:560px){
+    #hdr{font-size:9px;letter-spacing:3px;}
+    #formula{font-size:9px;padding:7px 10px;min-width:135px;right:48px;}
+    #ces{font-size:9px;gap:10px;padding:7px 12px;}
+    #ces .item{font-size:9px;}
+    #st{font-size:8px;}
+    #hint{display:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #ces .item{transition:none;}
+    #mute{transition:none;}
+  }
+</style>
+</head>
+<body>
+<canvas id="c" tabindex="0" role="img" aria-label="Atmende Kaiser-Visualisierung: ein pulsierender goldener Kern, umgeben von Toren, Ringen und einer schwingenden Waage. Klicken oder Leertaste löst einen Impuls aus."></canvas>
+
+<div id="hdr">⚜ iki1uc · ATEMZUG<span class="sub">FL76 · Kaiser-Fenster</span></div>
+
+<button id="mute" aria-label="Ton ein- oder ausschalten" title="Ton ein/aus">🔇</button>
+<div id="hint">Klick / Tippen = Impuls · Leertaste = Atemstoß</div>
+
+<div id="formula">
+  <div class="t">· NC · Formel ·</div>
+  <div class="r"><span class="k">KIT</span><span class="v">3</span></div>
+  <div class="r"><span class="k">GROUB</span><span class="v">9</span></div>
+  <div class="r"><span class="k">WORK</span><span class="v">81</span></div>
+  <div class="r"><span class="k">ATOM</span><span class="v">243</span></div>
+  <div class="r"><span class="k">FLOW</span><span class="v hb">FL76</span></div>
+  <div class="r"><span class="k">ZAM</span><span class="v">門</span></div>
+</div>
+
+<div id="ces">
+  <span class="item" id="cC">Ursache</span>
+  <span class="ar">→</span>
+  <span class="item" id="cE">Wirkung</span>
+  <span class="ar">→</span>
+  <span class="item" id="cS">Lösung</span>
+</div>
+
+<div id="st">
+  <div>Tick <span class="hb" id="sTick">0</span></div>
+  <div>FPS <span class="g" id="sFps">0</span></div>
+  <div>FL <span class="fn" id="sFl">0</span> ms</div>
+  <div>Atem <span class="g" id="sBreath">0.00</span></div>
+  <div>Achsen <span class="g" id="sAx">0</span>/243</div>
+</div>
+
+<script>
+"use strict";
+// ═══════════════════════════════════════════════════════════════════
+// ⚜️ iki1uc · ATEMZUG · FL76
+// Die Seite atmet. KIT=3 · GROUB=9 · WORK=81 · ATOM=243 · FLOW=FL76
+// Kaiser-Fenster: 76ms pro Atemzug
+//
+// Änderungen in dieser Fassung:
+//  · Mute-Button mit Sichtstatus statt stillem Audio-Unlock
+//  · AudioContext.resume() gegen "suspended"-Browser-Autoplay-Policy
+//  · Pausiert automatisch, wenn der Tab nicht sichtbar ist (Akku/CPU)
+//  · Respektiert prefers-reduced-motion (weniger Shake/Sparks/Partikel)
+//  · Canvas ist fokussierbar & per Tastatur bedienbar (Leertaste)
+// ═══════════════════════════════════════════════════════════════════
+
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let W=0, H=0, CX=0, CY=0, R=0, DPR=1;
+
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ─── KONSTANTEN ───────────────────────────────────────────────────
+const KIT = 3;         // Start-Impuls
+const GROUB = 9;       // Gruppierung
+const WORK = 81;       // Pipeline
+const ATOM = 243;      // Impuls-Raster (3×3×3×3×3)
+const FL_TARGET = 76;  // Kaiser-Fenster in ms
+
+// ─── STATE ────────────────────────────────────────────────────────
+const S = {
+  tick: 0,
+  fps: 0,
+  fl: FL_TARGET,
+  lastFpsT: 0,
+  frameCount: 0,
+  lastFrameT: 0,
+  smoothFL: FL_TARGET,
+  breath: 0,
+  breathT: 0,
+  breathPeriod: 7600,  // 7,6 s Atem-Zyklus (Kaiser-Zahl)
+  axisTick: 0,
+  loadL: 0.5,
+  loadR: 0.5,
+  tilt: 0,
+  ces: 0,
+  cesTimer: 0,
+  electrons: [],
+  particles: [],
+  sparks: [],
+  flash: 0,
+  shake: 0,
+  gatePulse: 0,
+  startedAt: performance.now(),
+  pausedAt: 0,
+  running: true,
+};
+
+// ─── RESIZE (bulletproof) ─────────────────────────────────────────
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  cv.width = Math.floor(W * DPR);
+  cv.height = Math.floor(H * DPR);
+  cv.style.width = W + 'px';
+  cv.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  CX = W / 2;
+  CY = H / 2;
+  R = Math.min(W, H) * 0.20;
+  initElectrons();
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', ()=>setTimeout(resize, 200));
+
+function initElectrons(){
+  S.electrons = [];
+  for(let i = 0; i < KIT*2; i++){
+    S.electrons.push({
+      a: (i / (KIT*2)) * Math.PI * 2,
+      r: R * (1.1 + 0.35 * (i % KIT)),
+      sp: (0.004 + 0.002 * (i % KIT)) * (i % 2 === 0 ? 1 : -1),
+      glow: 0,
+    });
+  }
+}
+
+// ─── SOUND ────────────────────────────────────────────────────────
+let AC = null;
+let audioOK = false;
+let muted = false;
+const muteBtn = document.getElementById('mute');
+
+function initAudio(){
+  if(AC) return;
+  try{
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    audioOK = true;
+  }catch(_){ audioOK = false; }
+}
+function ensureAudioRunning(){
+  initAudio();
+  if(AC && AC.state === 'suspended'){
+    AC.resume().catch(()=>{});
+  }
+}
+function beep(freq, dur){
+  if(muted || !audioOK || !AC || AC.state !== 'running') return;
+  try{
+    const o = AC.createOscillator();
+    const g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.value = freq;
+    g.gain.value = 0.03;
+    g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + dur);
+    o.connect(g); g.connect(AC.destination);
+    o.start();
+    o.stop(AC.currentTime + dur);
+  }catch(_){}
+}
+function setMuted(v){
+  muted = v;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+  muteBtn.classList.toggle('on', !muted);
+  muteBtn.setAttribute('aria-pressed', String(!muted));
+}
+muteBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  ensureAudioRunning();
+  setMuted(!muted);
+  if(!muted) beep(659, 0.12);
+});
+setMuted(true); // startet stumm — Nutzer entscheidet sich aktiv für Ton
+
+// ─── SPARK ────────────────────────────────────────────────────────
+function spark(x, y, color, n){
+  n = REDUCED_MOTION ? Math.max(2, Math.round((n||6)/2)) : (n || 6);
+  for(let i = 0; i < n; i++){
+    const a = Math.random() * Math.PI * 2;
+    const sp = 0.6 + Math.random() * 2.2;
+    S.sparks.push({
+      x, y,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp,
+      life: 0,
+      max: 30 + Math.random() * 30,
+      color: color || '#f4d060',
+      size: 1 + Math.random() * 1.4,
+    });
+  }
+}
+
+// ─── FLOW-PARTIKEL ────────────────────────────────────────────────
+const MAX_PARTICLES = REDUCED_MOTION ? 40 : 100;
+function flow(fromLeft){
+  if(S.particles.length > MAX_PARTICLES) return;
+  S.particles.push({
+    t: 0,
+    sp: 0.006 + Math.random() * 0.006,
+    dir: fromLeft ? 1 : -1,
+    curve: (Math.random() - 0.5) * 50,
+    size: 1.2 + Math.random() * 1.4,
+    life: 0,
+    max: 260,
+    hue: fromLeft ? 45 : 190,
+  });
+}
+
+// ─── ZEICHNEN ─────────────────────────────────────────────────────
+function draw(){
+  ctx.save();
+  const shakeAmt = REDUCED_MOTION ? 0 : S.shake;
+  const sx = (Math.random() - 0.5) * shakeAmt;
+  const sy = (Math.random() - 0.5) * shakeAmt;
+  ctx.translate(sx, sy);
+
+  const bgIntensity = 0.03 + S.breath * 0.05;
+  const bg = ctx.createRadialGradient(CX, CY, 0, CX, CY, Math.max(W, H) * 0.85);
+  bg.addColorStop(0, `rgba(40,18,48,${0.4 + bgIntensity})`);
+  bg.addColorStop(0.5, '#0c0610');
+  bg.addColorStop(1, '#050308');
+  ctx.fillStyle = bg;
+  ctx.fillRect(-20, -20, W + 40, H + 40);
+
+  const auraR = R * (3.2 + S.breath * 0.3);
+  const ag = ctx.createRadialGradient(CX, CY, 0, CX, CY, auraR);
+  ag.addColorStop(0, `rgba(244,208,96,${0.05 + S.breath * 0.06})`);
+  ag.addColorStop(1, 'rgba(212,168,60,0)');
+  ctx.fillStyle = ag;
+  ctx.beginPath(); ctx.arc(CX, CY, auraR, 0, Math.PI * 2); ctx.fill();
+
+  drawGate();
+  drawRings();
+  drawAtom();
+  drawNucleus();
+  drawBridge();
+  drawBalance();
+  drawParticles();
+  drawSparks();
+
+  ctx.restore();
+
+  if(S.flash > 0.01){
+    ctx.fillStyle = 'rgba(244,208,96,' + (S.flash * 0.35) + ')';
+    ctx.fillRect(0, 0, W, H);
+    S.flash *= 0.9;
+    if(S.flash < 0.02) S.flash = 0;
+  }
+}
+
+// ─── GATE (門 / Torii) ────────────────────────────────────────────
+function drawGate(){
+  const gw = R * 3.4;
+  const gh = R * 2.0;
+  const x0 = CX - gw / 2;
+  const x1 = CX + gw / 2;
+  const yT = CY - gh;
+  const yB = CY - R * 1.7;
+  const pw = Math.max(4, R * 0.06);
+  const th = Math.max(8, R * 0.14);
+  const pulse = 1 + 0.04 * Math.sin(S.tick * 0.05);
+
+  ctx.save();
+  ctx.shadowColor = '#e04a3a';
+  ctx.shadowBlur = 22 + S.breath * 20;
+  ctx.fillStyle = '#e04a3a';
+
+  ctx.fillRect(x0 - gw * 0.04, yT, gw * 1.08, th);
+  ctx.fillRect(x0 - gw * 0.02, yT + th * 1.6, gw * 1.04, th * 0.5);
+  ctx.fillRect(x0, yT, pw * pulse, yB - yT);
+  ctx.fillRect(x1 - pw * pulse, yT, pw * pulse, yB - yT);
+
+  ctx.shadowBlur = 0;
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = `rgba(244,208,96,${0.55 + S.breath * 0.4})`;
+  ctx.font = 'bold ' + Math.round(R * 0.75) + 'px "Yu Mincho","Hiragino Mincho ProN",serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = '#f4d060';
+  ctx.shadowBlur = 18 + S.breath * 25;
+  ctx.fillText('門', CX, yT + (yB - yT) / 2);
+  ctx.restore();
+}
+
+// ─── 3 NC-SCHICHTEN (KIT, GROUB, WORK) ────────────────────────────
+function drawRings(){
+  const layers = [
+    {n: KIT,   radius: R * 1.15, hue: '#8cf0b0', phase: 0},
+    {n: GROUB, radius: R * 1.55, hue: '#f4d060', phase: 2.0},
+    {n: WORK,  radius: R * 1.95, hue: '#b388ff', phase: 4.0},
+  ];
+
+  layers.forEach((L, idx) => {
+    const phaseOffset = S.breathT * 0.0015 + L.phase;
+    const pulse = 0.6 + 0.4 * Math.sin(phaseOffset);
+
+    ctx.beginPath();
+    ctx.arc(CX, CY, L.radius, 0, Math.PI * 2);
+    ctx.strokeStyle = L.hue + Math.floor(20 + pulse * 30).toString(16).padStart(2, '0');
+    ctx.setLineDash([4, 6]);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const numDots = Math.min(L.n, 20);
+    for(let i = 0; i < numDots; i++){
+      const a = (i / numDots) * Math.PI * 2 + S.tick * 0.004 * (idx % 2 === 0 ? 1 : -1);
+      const x = CX + Math.cos(a) * L.radius;
+      const y = CY + Math.sin(a) * L.radius;
+      ctx.beginPath();
+      ctx.arc(x, y, 1.6 + pulse * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = L.hue;
+      ctx.shadowColor = L.hue;
+      ctx.shadowBlur = 8 + pulse * 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  });
+}
+
+// ─── ATOM (Elektronen) ────────────────────────────────────────────
+function drawAtom(){
+  for(let i = 0; i < S.electrons.length; i++){
+    const e = S.electrons[i];
+    const speedMult = 0.6 + S.breath * 0.8;
+    e.a += e.sp * speedMult;
+    e.glow *= 0.95;
+    const x = CX + Math.cos(e.a) * e.r;
+    const y = CY + Math.sin(e.a) * e.r * 0.55;
+
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 14);
+    g.addColorStop(0, 'rgba(168,136,255,' + (0.75 + e.glow * 0.25) + ')');
+    g.addColorStop(1, 'rgba(168,136,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + e.glow * 1.6, 0, Math.PI * 2);
+    ctx.fillStyle = '#d8b8ff';
+    ctx.shadowColor = '#a888ff';
+    ctx.shadowBlur = 10 + e.glow * 15;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+// ─── NUCLEUS (皇 · Kaiser) ────────────────────────────────────────
+function drawNucleus(){
+  const coreR = R * (0.52 + S.breath * 0.08);
+
+  const g1 = ctx.createRadialGradient(CX, CY, 0, CX, CY, coreR * 2.2);
+  g1.addColorStop(0, `rgba(244,208,96,${0.5 + S.breath * 0.2})`);
+  g1.addColorStop(0.5, `rgba(212,168,60,${0.15 + S.breath * 0.1})`);
+  g1.addColorStop(1, 'rgba(212,168,60,0)');
+  ctx.fillStyle = g1;
+  ctx.beginPath(); ctx.arc(CX, CY, coreR * 2.2, 0, Math.PI * 2); ctx.fill();
+
+  const g2 = ctx.createRadialGradient(CX, CY, 0, CX, CY, coreR);
+  g2.addColorStop(0, '#fff5d0');
+  g2.addColorStop(0.4, '#f4d060');
+  g2.addColorStop(1, '#d4a83c');
+  ctx.fillStyle = g2;
+  ctx.beginPath(); ctx.arc(CX, CY, coreR, 0, Math.PI * 2); ctx.fill();
+
+  ctx.save();
+  ctx.translate(CX, CY);
+  ctx.rotate(S.tick * 0.004 * (0.5 + S.breath));
+  ctx.strokeStyle = 'rgba(10,6,12,0.75)';
+  ctx.lineWidth = 2.4;
+  for(let i = 0; i < 8; i++){
+    const a = (i / 8) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * coreR * 0.28, Math.sin(a) * coreR * 0.28);
+    ctx.lineTo(Math.cos(a) * coreR * 0.88, Math.sin(a) * coreR * 0.88);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = '#0a060c';
+  ctx.font = 'bold ' + Math.round(coreR * 0.95) + 'px "Yu Mincho","Hiragino Mincho ProN",serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('皇', CX, CY);
+  ctx.restore();
+}
+
+// ─── BRÜCKE (Flow hin↔her) ────────────────────────────────────────
+function drawBridge(){
+  const by = CY + R * 0.55;
+  const beamLen = R * 1.6;
+
+  ctx.beginPath();
+  ctx.moveTo(CX - beamLen, by);
+  ctx.quadraticCurveTo(CX, by - 90, CX + beamLen, by);
+  ctx.strokeStyle = 'rgba(244,208,96,0.15)';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([4, 8]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.beginPath();
+  ctx.moveTo(CX + beamLen, by);
+  ctx.quadraticCurveTo(CX, by - 120, CX - beamLen, by);
+  ctx.strokeStyle = 'rgba(108,204,255,0.13)';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([4, 8]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  arrow(CX + beamLen + 8, by, 1, 'rgba(244,208,96,0.5)');
+  arrow(CX - beamLen - 8, by, -1, 'rgba(108,204,255,0.5)');
+}
+
+function arrow(x, y, dir, color){
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x - dir * 10, y - 5);
+  ctx.lineTo(x - dir * 10, y + 5);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+// ─── WAAGSCHALE (Ursache ↔ Wirkung) ───────────────────────────────
+function drawBalance(){
+  const beamLen = R * 1.6;
+  const by = CY + R * 0.55;
+
+  const breathTilt = Math.sin(S.breathT * 0.001) * 0.05;
+  const totalTilt = S.tilt * 0.18 + breathTilt;
+
+  ctx.save();
+  ctx.translate(CX, by);
+  ctx.rotate(totalTilt);
+
+  ctx.beginPath();
+  ctx.moveTo(-beamLen, 0);
+  ctx.lineTo(beamLen, 0);
+  ctx.strokeStyle = 'rgba(244,208,96,0.85)';
+  ctx.lineWidth = 2.4;
+  ctx.shadowColor = '#f4d060';
+  ctx.shadowBlur = 12 + S.breath * 8;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  drawPan(-beamLen, 0, S.loadL, '#e04a3a');
+  drawPan( beamLen, 0, S.loadR, '#6cf');
+
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.moveTo(CX, CY + R * 0.25);
+  ctx.lineTo(CX, by - 4);
+  ctx.strokeStyle = 'rgba(244,208,96,0.35)';
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(CX - R * 0.28, by + R * 0.42);
+  ctx.lineTo(CX + R * 0.28, by + R * 0.42);
+  ctx.strokeStyle = 'rgba(244,208,96,0.5)';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+}
+
+function drawPan(px, py, load, color){
+  const tl = R * 0.42;
+  const pr = R * 0.22 + load * R * 0.22;
+
+  ctx.beginPath();
+  ctx.moveTo(px, py);
+  ctx.lineTo(px, py + tl);
+  ctx.strokeStyle = 'rgba(200,180,140,0.4)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(px, py + tl, pr, 0, Math.PI);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  if(load > 0.02){
+    ctx.beginPath();
+    ctx.arc(px, py + tl, pr * 0.85, Math.PI * load, Math.PI);
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.6;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ─── FLOW-PARTIKEL ────────────────────────────────────────────────
+function drawParticles(){
+  const by = CY + R * 0.55;
+  const beamLen = R * 1.6;
+
+  for(let i = S.particles.length - 1; i >= 0; i--){
+    const p = S.particles[i];
+    p.t += p.sp;
+    p.life++;
+
+    const tt = Math.min(1, p.t);
+    const fromX = p.dir === 1 ? CX - beamLen : CX + beamLen;
+    const toX   = p.dir === 1 ? CX + beamLen : CX - beamLen;
+    const x = fromX + (toX - fromX) * tt;
+    const arcH = 90 + Math.abs(p.curve * 0.5);
+    const arcY = by - arcH * 4 * tt * (1 - tt);
+    const y = arcY + p.curve * 0.3;
+
+    const alpha = 1 - p.life / p.max;
+    const col = p.hue === 45
+      ? 'rgba(244,208,96,' + alpha + ')'
+      : 'rgba(108,204,255,' + alpha + ')';
+
+    const g = ctx.createRadialGradient(x, y, 0, x, y, p.size * 4);
+    g.addColorStop(0, col);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, p.size * 4, 0, Math.PI * 2); ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(x, y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = p.hue === 45 ? '#fff5d0' : '#a0e0ff';
+    ctx.shadowColor = p.hue === 45 ? '#f4d060' : '#6cf';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    if(p.t >= 1 || p.life > p.max){
+      const ex = p.dir === 1 ? CX + beamLen : CX - beamLen;
+      spark(ex, by, p.hue === 45 ? '#f4d060' : '#6cf', 4);
+      S.particles.splice(i, 1);
+    }
+  }
+}
+
+function drawSparks(){
+  for(let i = S.sparks.length - 1; i >= 0; i--){
+    const s = S.sparks[i];
+    s.x += s.vx;
+    s.y += s.vy;
+    s.vx *= 0.94;
+    s.vy *= 0.94;
+    s.life++;
+    const a = 1 - s.life / s.max;
+    ctx.fillStyle = s.color;
+    ctx.globalAlpha = a;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size * a, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    if(s.life > s.max) S.sparks.splice(i, 1);
+  }
+}
+
+// ─── UPDATE ───────────────────────────────────────────────────────
+function update(now){
+  S.tick++;
+  S.axisTick = (S.axisTick + 1) % ATOM;
+
+  S.breathT = (now - S.startedAt);
+  const phase = (S.breathT % S.breathPeriod) / S.breathPeriod;
+  S.breath = 0.5 + 0.5 * Math.cos(phase * Math.PI * 2);
+
+  S.loadL += (Math.random() - 0.5) * 0.008;
+  S.loadR += (Math.random() - 0.5) * 0.008;
+  if(S.loadL < 0.15) S.loadL = 0.15;
+  if(S.loadL > 0.9)  S.loadL = 0.9;
+  if(S.loadR < 0.15) S.loadR = 0.15;
+  if(S.loadR > 0.9)  S.loadR = 0.9;
+  S.tilt = Math.max(-1, Math.min(1, (S.loadR - S.loadL) * 1.8));
+
+  const flowChance = (0.02 + S.breath * 0.05) * (REDUCED_MOTION ? 0.4 : 1);
+  if(Math.random() < flowChance) flow(true);
+  if(Math.random() < flowChance) flow(false);
+
+  S.cesTimer++;
+  if(S.cesTimer > 120){
+    S.cesTimer = 0;
+    S.ces = (S.ces + 1) % 3;
+    updateCES();
+  }
+
+  S.shake *= 0.88;
+  if(S.shake < 0.3) S.shake = 0;
+
+  S.flash *= 0.9;
+  if(S.flash < 0.02) S.flash = 0;
+}
+
+function updateCES(){
+  const ids = ['cC', 'cE', 'cS'];
+  for(let i = 0; i < ids.length; i++){
+    const el = document.getElementById(ids[i]);
+    if(i === S.ces) el.classList.add('on');
+    else el.classList.remove('on');
+  }
+  const freqs = [392, 523, 784];
+  beep(freqs[S.ces], 0.15);
+}
+
+// ─── HUD ──────────────────────────────────────────────────────────
+function updateHUD(now){
+  S.frameCount++;
+  if(now - S.lastFpsT > 500){
+    S.fps = Math.round(S.frameCount * 1000 / (now - S.lastFpsT));
+    S.frameCount = 0;
+    S.lastFpsT = now;
+  }
+  if(S.lastFrameT > 0){
+    const rawFL = now - S.lastFrameT;
+    S.smoothFL = S.smoothFL * 0.85 + rawFL * 0.15;
+    S.fl = S.smoothFL;
+  }
+  document.getElementById('sTick').textContent = S.tick;
+  document.getElementById('sFps').textContent = S.fps;
+  const flEl = document.getElementById('sFl');
+  flEl.textContent = Math.round(S.fl);
+  if(S.fl >= 60 && S.fl <= 90){
+    flEl.style.color = '#8cf0b0';
+  } else if(S.fl < 40 || S.fl > 120){
+    flEl.style.color = '#ff5577';
+  } else {
+    flEl.style.color = '#f4d060';
+  }
+  document.getElementById('sBreath').textContent = S.breath.toFixed(2);
+  document.getElementById('sAx').textContent = S.axisTick;
+}
+
+// ─── LOOP (bulletproof, pausiert bei verstecktem Tab) ─────────────
+let lastT = 0;
+let rafId = null;
+
+function loop(now){
+  if(!S.running) return;
+  try{
+    S.lastFrameT = lastT;
+    lastT = now;
+    update(now);
+    draw();
+    updateHUD(now);
+  }catch(err){
+    console.error('Frame error:', err);
+  }
+  rafId = requestAnimationFrame(loop);
+}
+
+function startLoop(){
+  if(S.running) return;
+  S.running = true;
+  // Zeitversatz durch Pause ausgleichen, damit der Atem nicht "springt"
+  const pausedFor = performance.now() - S.pausedAt;
+  S.startedAt += pausedFor;
+  lastT = 0;
+  S.lastFrameT = 0;
+  rafId = requestAnimationFrame(loop);
+}
+function stopLoop(){
+  if(!S.running) return;
+  S.running = false;
+  S.pausedAt = performance.now();
+  if(rafId) cancelAnimationFrame(rafId);
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) stopLoop();
+  else startLoop();
+});
+
+// ─── INPUT ────────────────────────────────────────────────────────
+function onPress(x, y){
+  ensureAudioRunning();
+  spark(x, y, '#f4d060', 8);
+  if(x < CX){
+    S.loadL = Math.min(0.95, S.loadL + 0.1);
+    flow(true);
+  } else {
+    S.loadR = Math.min(0.95, S.loadR + 0.1);
+    flow(false);
+  }
+  beep(523, 0.08);
+  S.flash = Math.max(S.flash, 0.1);
+}
+
+cv.addEventListener('click', (e)=>{
+  const r = cv.getBoundingClientRect();
+  onPress(e.clientX - r.left, e.clientY - r.top);
+});
+
+cv.addEventListener('touchstart', (e)=>{
+  e.preventDefault();
+  const t = e.touches[0];
+  if(!t) return;
+  const r = cv.getBoundingClientRect();
+  onPress(t.clientX - r.left, t.clientY - r.top);
+}, { passive: false });
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === ' ' || e.key === 'Spacebar'){
+    e.preventDefault();
+    ensureAudioRunning();
+    for(const el of S.electrons) el.glow = 1;
+    spark(CX, CY, '#f4d060', 22);
+    beep(784, 0.3);
+    S.flash = 0.5;
+    S.shake = REDUCED_MOTION ? 0 : 6;
+  }
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────
+resize();
+updateCES();
+S.lastFpsT = performance.now();
+S.startedAt = performance.now();
+requestAnimationFrame(loop);
+
+console.log('%c⚜️ iki1uc · ATEMZUG · FL76','color:#f4d060;font-weight:bold;font-size:14px;');
+console.log('KIT=3 · GROUB=9 · WORK=81 · ATOM=243 · FLOW=FL76 · ZAM=門');
+console.log('Atem-Periode: 7,6 s (Kaiser-Zahl)');
+console.log('Kaiser-Fenster: 60–90 ms FL → grün');
+console.log('Wenn Tick + FPS hochzählen → Loop läuft.');
+</script>
+</body>
+</html>
